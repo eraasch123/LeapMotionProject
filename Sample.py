@@ -50,7 +50,6 @@ class SampleListener(Leap.Listener):
             # Get the hand's normal vector and direction
             normal = hand.palm_normal
             direction = hand.direction
-
             # Calculate the hand's pitch, roll, and yaw angles
             print ("  pitch: %f degrees, roll: %f degrees, yaw: %f degrees" % (
                 direction.pitch * Leap.RAD_TO_DEG,
