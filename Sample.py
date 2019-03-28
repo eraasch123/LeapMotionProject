@@ -12,7 +12,6 @@ import sys, time, os, inspect
 # Mac
 #arch_dir = os.path.abspath(os.path.join(src_dir, '../lib'))
 
-sys.path.insert(0, './x64')
 import Leap
 
 class SampleListener(Leap.Listener):
