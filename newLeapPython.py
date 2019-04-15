@@ -9,7 +9,15 @@ sys.path.insert(0, os.path.abspath(os.path.join(src_dir, arch_dir)))
 
 import Leap
 import cozmo
-class SampleListener(robot,Leap.Listener):
+
+class LeapMotion:
+    def __init__ (self, robot: cozmo.robot.Robot):
+        self.robot = robot
+
+    class SampleListener(Leap.Listener):
+        def __init__ (self, robot: cozmo.robot.Robot):
+            Leap.Listener.__init__(self)
+            self.robot = robot
 
         finger_names = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky']
         bone_names = ['Metacarpal', 'Proximal', 'Intermediate', 'Distal']
@@ -17,42 +25,44 @@ class SampleListener(robot,Leap.Listener):
 
         def on_connect(self, controller):
             print("Connected")
+
+
         def on_frame(self, controller):
-            print("Frame available")
-	    frame = controller.frame()
-	    for hand in frame.hands:
-		handType = "Left hand" if hand.is_left else "Right hand"
+            frame = controller.frame()
+            for hand in frame.hands:
+
+                handType = "Left hand" if hand.is_left else "Right hand"
+
                 print ("  %s, id %d, position: %s",
-		handType, hand.id, hand.palm_position)
+                    handType, hand.id, hand.palm_position)
 
-		# Get the hand's normal vector and direction
-		normal = hand.palm_normal
-		direction = hand.direction
-		basis = hand.basis
-		x_basis = basis.x_basis
-		z_basis = basis.z_basis
-
-
-		if x_basis >= 100:
-		    robot.drive_wheels(50, -50)
-		elif x_basis <= -100:
-		    robot.drive_wheels(-50, 50)
-		elif z_basis >= 50:
-		    robot.drive_wheels(-50,-50)
-		elif z_basis <= -50:
-		    robot.drive_wheels(50,50)
-class LeapMotion:
-    def __init__ (self, robot: cozmo.robot.Robot):
-        self.robot = robot
-
-    def on_frame(self, controller):
-        
+                # Get the hand's normal vector and direction
+                normal = hand.palm_normal
+                direction = hand.direction
+                position = hand.palm_position
+                x_basis = position.x
+                z_basis = position.z
 
 
-    def main():
+                if x_basis >= 50:
+                    print("robot right")
+                    self.robot.drive_wheels(50, -50)
+                elif x_basis <= -50:
+                    print("robot left")
+                    self.robot.drive_wheels(-50, 50)
+                elif z_basis >= 25:
+                    print("robot back")
+                    self.robot.drive_wheels(-50,-50)
+                elif z_basis <= -25:
+                    print("robot forward")
+                    self.robot.drive_wheels(50,50)
+                else:
+                    self.robot.drive_wheels(0,0)
+
+    def main(self):
 
         # Create a sample listener and controller
-        listener = SampleListener()
+        listener = self.SampleListener(self.robot)
         controller = Leap.Controller()
 
         # Have the sample listener receive events from the controller
@@ -65,5 +75,8 @@ class LeapMotion:
         except KeyboardInterrupt:
             pass
 
-    if __name__ == "__main__":
-        main()
+def cozmo_program(robot:cozmo.robot.Robot):
+    leap = LeapMotion(robot)
+    leap.main()
+
+cozmo.run_program(cozmo_program)
